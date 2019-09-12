@@ -1,6 +1,7 @@
 // Includes
 #include <stdio.h>
 #include <CL/cl.h>
+#include <unistd.h>
 
 //  _
 // |_)  _  |  _  ._ ._  |  _. _|_  _
@@ -170,7 +171,7 @@ int main(int argc, char* argv[]) {
     Command queue
     - - - - */
     // The OpenCL functions that are submitted to a command-queue are enqueued in the order the calls are made but can be configured to execute in-order or out-of-order.
-    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE), 0 };
+    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE), 0 };
 
     cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, properties, &err);
     check_error(err,"clCreateCommandQueueWithProperties");
@@ -183,7 +184,7 @@ int main(int argc, char* argv[]) {
     // Hardcoded
     const char *kernelstring =
         "__kernel void hello_world(int id) {"
-        "   printf(\"Hello world from id %d \\n\", id);"
+        "   printf(\"Hello world from id %d\\n\", id);"
         "}";
 
     // Create the program
@@ -238,13 +239,17 @@ int main(int argc, char* argv[]) {
     printf(">>> Kernel Execution...\n");
 
     const size_t num_kernel = (size_t) atoi(argv[5]) ;
+    cl_event ev;
+    ev = clCreateUserEvent(context, NULL);
     for (int id = 0 ; id < num_kernel; id++){
          err = clSetKernelArg(kernel, 0, sizeof(id), &id);
          check_error(err,"clSetKernelArg");
 
-         err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, 0, NULL, NULL);
+         err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, id%2 == 0 ? 0 : 1, id%2 == 0 ? NULL : &ev, NULL);
          check_error(err,"clEnqueueNDRangeKernel");
     }
+    sleep(1);
+    clSetUserEventStatus(ev, CL_COMPLETE);
 
 
     /* - - -
