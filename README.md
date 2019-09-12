@@ -18,6 +18,8 @@ make
 make run
 ```
 
+# Introduction to the API
+
 ## platform{,.cpp}
 
 - Simple OpenCL C example to list your platform
@@ -27,6 +29,8 @@ make run
 
 - List all the device for all the platform in your system (inspired by the "standard" `clinfo` tools)
 - `make run_tiny_clinfo`
+
+# Hello world and ID
 
 ## my_first_kernel{,.cpp}
 
@@ -40,6 +44,7 @@ make run
 - `make run_verbose`
 - `Usage: ./my_first_kernel platform_id device_id global_size local_size`
 
+# Where do I put my kernel?
 
 ## read_cl{,.cpp}
 
@@ -64,12 +69,14 @@ make run
 - `Usage: ./read_elfcl platform_id device_id global_size local_size`
 
 # Buffer
+
+## buffer{,.cpp}
 - How to create and use buffer
 - `make run_buffer `
 
 # Ordering
 
-##  event_unorder{,.cpp}
+## event_unorder{,.cpp}
 
 - How to use and out of order queue
 - `make run_event_unorder`
@@ -82,9 +89,7 @@ make run
 - `Usage: ./event_unorder platform_id device_id global_size local_size number_of_kernel_launch`
 
 # Profiling
+
+## profiling{,.cpp}
 - How to measure exution time of a kernel
 - `make run_profiling`
-
-
-
-
