@@ -31,14 +31,14 @@ run_my_first_kernel: my_first_kernel
 	./$< 0 0 10 1
 
 
-verbose:
+verbose: verbose.cpp
 	$(CXX) $@.cpp $(CXXFLAGS) -o $@
 
 run_verbose: verbose
 	./$< 0 0 10 1
 
 
-read_cl: hwv.cl
+read_cl: hwv.cl read_cl.cpp
 	$(CXX) $@.cpp $(CXXFLAGS) -o $@
 
 run_read_cl: read_cl
@@ -48,7 +48,7 @@ run_read_cl: read_cl
 hwv.bin: hwv.cl
 	ioc64 -cmd=build -input=hwv.cl -ir=hwv.bin -device=gpu
 
-read_bincl:
+read_bincl: read_bincl.cpp
 	$(CXX) $@.cpp $(CXXFLAGS) -o $@
 
 run_read_bincl: read_bincl hwv.bin
@@ -75,14 +75,14 @@ run_buffer: buffer
 
 
 
-event_unorder:
+event_unorder: event_unorder.cpp
 	$(CXX) $@.cpp $(CXXFLAGS) -o $@
 
 run_event_unorder: event_unorder
 	./$< 0 0 1 1 10
 
 
-event_order:
+event_order: event_order.cpp
 	$(CXX) $@.cpp $(CXXFLAGS) -o $@
 
 run_event_order: event_order
