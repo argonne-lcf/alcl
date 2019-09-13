@@ -8,39 +8,6 @@
 //                  |
 
 /* - - - -
-IO
-- - - - */
-char *read_from_file(const char *filename)
-{
-    long int size = 0;
-    FILE *file = fopen(filename, "r");
-
-    if(!file) {
-        fputs("File error.\n", stderr);
-        return NULL;
-    }
-
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    rewind(file);
-
-    char *result = (char *) malloc(size + 1);
-    result[size] = '\0';
-    if(!result) {
-        fputs("Memory error.\n", stderr);
-        return NULL;
-    }
-
-    if(fread(result, 1, size, file) != size) {
-        fputs("Read error.\n", stderr);
-        return NULL;
-    }
-
-    fclose(file);
-    return result;
-}
-
-/* - - - -
 OpenCL Error
 - - - - */
 
@@ -203,7 +170,7 @@ int main(int argc, char* argv[]) {
     Command queue
     - - - - */
     // The OpenCL functions that are submitted to a command-queue are enqueued in the order the calls are made but can be configured to execute in-order or out-of-order.
-    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_PROFILING_ENABLE), 0 };
+    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE), 0 };
 
     cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, properties, &err);
     check_error(err,"clCreateCommandQueueWithProperties");
@@ -213,11 +180,14 @@ int main(int argc, char* argv[]) {
     //
     printf(">>> Kernel configuration...\n");
 
-    // Readed from file
-    char* kernelstring = read_from_file("hwv.cl");
+    // Hardcoded
+    const char *kernelstring =
+        "__kernel void hello_world(const int id) {"
+        "   printf(\"Hello world from id %d \\n\", id);"
+        "}";
 
     // Create the program
-    cl_program program = clCreateProgramWithSource(context, 1, (const char **) &kernelstring, NULL, &err);
+    cl_program program = clCreateProgramWithSource(context, 1, &kernelstring, NULL, &err);
     check_error(err,"clCreateProgramWithSource");
 
     //Build / Compile the program executable
@@ -250,14 +220,16 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> NDrange configuration...\n");
 
-    const size_t work_dim = 1;
+    #define WORK_DIM 1
 
     // Describe the number of global work-items in work_dim dimensions that will execute the kernel function
-    const size_t global[work_dim] = {   (size_t) atoi(argv[3]) };
+    size_t global0 = (size_t) atoi(argv[3]);
+    const size_t global[WORK_DIM] = {  global0 };
 
     // Describe the number of work-items that make up a work-group (also referred to as the size of the work-group).
     // local_work_size can also be a NULL value in which case the OpenCL implementation will determine how to be break the global work-items into appropriate work-group instances.
-    const size_t local[work_dim] = { (size_t) atoi(argv[4]) };
+    size_t local0 = (size_t) atoi(argv[4]);
+    const size_t local[WORK_DIM] = { local0 };
 
     printf("Global work size: %zu \n", global[0]);
     printf("Local work size: %zu \n", local[0]);
@@ -267,8 +239,39 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> Kernel Execution...\n");
 
-    err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, 0, NULL, NULL);
-    check_error(err,"clEnqueueNDRangeKernel");
+    const size_t num_kernel = (size_t) atoi(argv[5]) ;
+    cl_event events[num_kernel];
+
+    for (int id = 0 ; id < num_kernel; id++){
+         err = clSetKernelArg(kernel, 0, sizeof(id), &id);
+         check_error(err,"clSetKernelArg");
+
+         if (id == 0) {
+            err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 0, NULL, &events[id]);
+         } else {
+            err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 1, &events[id-1], &events[id]);
+         }
+         check_error(err,"clEnqueueNDRangeKernel");
+    }
+
+    /* - - -
+    Sync & check
+    - - - */
+    clWaitForEvents(num_kernel,events);
+
+
+    //  _         _
+    // |_) ._ _ _|_ o | o ._   _
+    // |   | (_) |  | | | | | (_|
+    //                         _|
+    cl_ulong time_start, time_end;
+
+    err = clGetEventProfilingInfo(events[0], CL_PROFILING_COMMAND_START, sizeof(time_start), &time_start, NULL);
+    err |= clGetEventProfilingInfo(events[num_kernel-1], CL_PROFILING_COMMAND_END, sizeof(time_end), &time_end, NULL);
+    check_error(err, "clGetEventProfilingInfo");
+
+    double nanoSeconds = time_end-time_start;
+    printf("OpenCl Execution time is: %0.3f milliseconds \n",nanoSeconds * 1E-6);
 
     //  _                         
     // /  |  _   _. ._  o ._   _  

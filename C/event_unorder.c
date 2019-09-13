@@ -221,14 +221,16 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> NDrange configuration...\n");
 
-    const size_t work_dim = 1;
+    #define WORK_DIM 1
 
     // Describe the number of global work-items in work_dim dimensions that will execute the kernel function
-    const size_t global[work_dim] = {   (size_t) atoi(argv[3]) };
+    size_t global0 = (size_t) atoi(argv[3]);
+    const size_t global[WORK_DIM] = {  global0 };
 
     // Describe the number of work-items that make up a work-group (also referred to as the size of the work-group).
     // local_work_size can also be a NULL value in which case the OpenCL implementation will determine how to be break the global work-items into appropriate work-group instances.
-    const size_t local[work_dim] = { (size_t) atoi(argv[4]) };
+    size_t local0 = (size_t) atoi(argv[4]);
+    const size_t local[WORK_DIM] = { local0 };
 
     printf("Global work size: %zu \n", global[0]);
     printf("Local work size: %zu \n", local[0]);
@@ -245,7 +247,7 @@ int main(int argc, char* argv[]) {
          err = clSetKernelArg(kernel, 0, sizeof(id), &id);
          check_error(err,"clSetKernelArg");
 
-         err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, id%2 == 0 ? 0 : 1, id%2 == 0 ? NULL : &ev, NULL);
+         err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, id%2 == 0 ? 0 : 1, id%2 == 0 ? NULL : &ev, NULL);
          check_error(err,"clEnqueueNDRangeKernel");
     }
     sleep(1);

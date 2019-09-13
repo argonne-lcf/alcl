@@ -10,25 +10,34 @@
 /* - - - -
 IO
 - - - - */
-int read_from_binary(unsigned char **output, size_t *size, const char *name) {
-  FILE *fp = fopen(name, "rb");
-  if (!fp) {
-    return -1;
-  }
+char *read_from_file(const char *filename)
+{
+    long int size = 0;
+    FILE *file = fopen(filename, "r");
 
-  fseek(fp, 0, SEEK_END);
-  *size = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
+    if(!file) {
+        fputs("File error.\n", stderr);
+        return NULL;
+    }
 
-  *output = (unsigned char *)malloc(*size * sizeof(unsigned char));
-  if (!*output) {
-    fclose(fp);
-    return -1;
-  }
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    rewind(file);
 
-  fread(*output, *size, 1, fp);
-  fclose(fp);
-  return 0;
+    char *result = (char *) malloc(size + 1);
+    result[size] = '\0';
+    if(!result) {
+        fputs("Memory error.\n", stderr);
+        return NULL;
+    }
+
+    if(fread(result, 1, size, file) != size) {
+        fputs("Read error.\n", stderr);
+        return NULL;
+    }
+
+    fclose(file);
+    return result;
 }
 
 /* - - - -
@@ -199,33 +208,16 @@ int main(int argc, char* argv[]) {
     cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, properties, &err);
     check_error(err,"clCreateCommandQueueWithProperties");
 
-    //  _       _   _
-    // |_)    _|_ _|_ _  ._
-    // |_) |_| |   | (/_ |
-
-    // Length of vectors
-    size_t n =  {   (size_t) atoi(argv[3]) };
-    size_t bytes = n*sizeof(double);
-    double *h_a = (double*)malloc(bytes);
-    cl_mem d_a = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, bytes, NULL, &err);
-    check_error(err,"cclCreateBuffer");
-
     // |/  _  ._ ._   _  |
     // |\ (/_ |  | | (/_ |
     //
     printf(">>> Kernel configuration...\n");
 
-    // String kernel.
-    // Use MPI terminology (we are HPC!)
-    const char *kernelstring =
-        "__kernel void hello_world(__global double *a, const unsigned int n) {"
-        "   const int world_rank = get_global_id(0);"
-        "    if (world_rank < n)"
-        "    a[world_rank] =  world_rank;"
-        "}";
+    // Readed from file
+    char* kernelstring = read_from_file("hwv.cl");
 
     // Create the program
-    cl_program program = clCreateProgramWithSource(context, 1, &kernelstring, NULL, &err);
+    cl_program program = clCreateProgramWithSource(context, 1, (const char **) &kernelstring, NULL, &err);
     check_error(err,"clCreateProgramWithSource");
 
     //Build / Compile the program executable
@@ -253,23 +245,21 @@ int main(int argc, char* argv[]) {
     cl_kernel kernel = clCreateKernel(program, "hello_world", &err);
     check_error(err,"clCreateKernel");
 
-    err  = clSetKernelArg(kernel, 0, sizeof(cl_mem), &d_a);
-    err |= clSetKernelArg(kernel, 1, sizeof(unsigned int), &n);
-    check_error(err,"clSetKernelArg");
-
     /* - - - -
     ND range
     - - - - */
     printf(">>> NDrange configuration...\n");
 
-    const size_t work_dim = 1;
+    #define WORK_DIM 1
 
     // Describe the number of global work-items in work_dim dimensions that will execute the kernel function
-    const size_t global[work_dim] = {   (size_t) atoi(argv[3]) };
+    size_t global0 = (size_t) atoi(argv[3]);
+    const size_t global[WORK_DIM] = {  global0 };
 
     // Describe the number of work-items that make up a work-group (also referred to as the size of the work-group).
     // local_work_size can also be a NULL value in which case the OpenCL implementation will determine how to be break the global work-items into appropriate work-group instances.
-    const size_t local[work_dim] = { (size_t) atoi(argv[4]) };
+    size_t local0 = (size_t) atoi(argv[4]);
+    const size_t local[WORK_DIM] = { local0 };
 
     printf("Global work size: %zu \n", global[0]);
     printf("Local work size: %zu \n", local[0]);
@@ -279,22 +269,8 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> Kernel Execution...\n");
 
-    err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, 0, NULL, NULL);
+    err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 0, NULL, NULL);
     check_error(err,"clEnqueueNDRangeKernel");
-
-    /* - - - 
-    Sync & check
-    - - - */
-
-    // Wait for the command queue to get serviced before reading back results
-    clFinish(queue);
-
-    // Read the results from the device
-    clEnqueueReadBuffer(queue, d_a, CL_TRUE, 0, bytes, h_a, 0, NULL, NULL );
-    double sum = 0;
-    for(int i=0; i<n; i++)
-        sum += h_a[i];
-     printf("final result: %f, should have been %lu\n", sum, n*(n-1)/2);
 
     //  _                         
     // /  |  _   _. ._  o ._   _  

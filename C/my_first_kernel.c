@@ -1,6 +1,7 @@
 // Includes
 #include <stdio.h>
 #include <string.h>
+
 #include <CL/cl.h>
 
 //  _
@@ -180,17 +181,13 @@ int main(int argc, char* argv[]) {
     // |\ (/_ |  | | (/_ |
     //
     printf(">>> Kernel configuration...\n");
-    
-    // Hardcoded
+
+    // String kernel.
+    // Use MPI terminology (we are HPC!)
     const char *kernelstring =
         "__kernel void hello_world() {"
-        "   const int world_rank = get_global_id(0);"
-        "   const int work_size =  get_global_size(0);"
-        "   const int local_rank = get_local_id(0);"
-        "   const int local_size = get_local_size(0);"
-        "   const int group_rank = get_group_id(0); "
-        "   const int group_size = get_num_groups(0); "
-        "   printf(\"Hello world: World rank/size: %d / %d. Local rank/size: %d / %d  Group rank/size: %d / %d \\n\", world_rank, work_size, local_rank, local_size, group_rank, group_size);"
+        "   const int world_rank = get_global_id(0);" 
+        "   printf(\"Hello world from rank %d \\n\", world_rank);" 
         "}";
 
     // Create the program
@@ -227,14 +224,16 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> NDrange configuration...\n");
 
-    const size_t work_dim = 1;
+    #define WORK_DIM 1
 
     // Describe the number of global work-items in work_dim dimensions that will execute the kernel function
-    const size_t global[work_dim] = {   (size_t) atoi(argv[3]) };
+    size_t global0 = (size_t) atoi(argv[3]);
+    const size_t global[WORK_DIM] = {  global0 };
 
     // Describe the number of work-items that make up a work-group (also referred to as the size of the work-group).
     // local_work_size can also be a NULL value in which case the OpenCL implementation will determine how to be break the global work-items into appropriate work-group instances.
-    const size_t local[work_dim] = { (size_t) atoi(argv[4]) };
+    size_t local0 = (size_t) atoi(argv[4]);
+    const size_t local[WORK_DIM] = { local0 };
 
     printf("Global work size: %zu \n", global[0]);
     printf("Local work size: %zu \n", local[0]);
@@ -244,14 +243,14 @@ int main(int argc, char* argv[]) {
     - - - - */
     printf(">>> Kernel Execution...\n");
 
-    err  = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL, global, local, 0, NULL, NULL);
+    err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 0, NULL, NULL);
     check_error(err,"clEnqueueNDRangeKernel");
 
     /* - - -
     Sync & check
     - - - */
 
-    // Wait for the command queue to get serviced before reading back results
+     // Wait for the command queue to get serviced before reading back results
     clFinish(queue);
 
     //  _                         
