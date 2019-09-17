@@ -8,7 +8,7 @@ run: $(addprefix run_, $(BINARIES))
 
 clean:
 	rm -f -- $(BINARIES)
-	rm -f -- hwv.bin hwv.bin.o
+	rm -f -- hwv.bin *.o
 	
 platform: platform.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@

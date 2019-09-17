@@ -1,6 +1,6 @@
 #include <CL/cl.h>
 
-const char *getErrorString(cl_int error)
+static const char *getErrorString(cl_int error)
 {
 switch(error){
     // run-time and JIT compiler errors
