@@ -4,6 +4,10 @@
 #include <CL/cl.h>
 #include "./cl_utils.h"
 
+extern unsigned  char _binary_hwv_bin_start[];
+extern unsigned  char _binary_hwv_bin_size[];
+
+
 int main(int argc, char* argv[]) {
 
    cl_int err;
@@ -88,15 +92,10 @@ int main(int argc, char* argv[]) {
     //
     printf(">>> Kernel configuration...\n");
 
-    // Readed from file
-    unsigned char* program_file; size_t program_size;
-    err = read_from_binary(&program_file, &program_size, "hwv.bin");
-
-
-    // Create the program from binary
-    cl_program program = clCreateProgramWithBinary(context, 1, &device, &program_size,
-                              (const unsigned char **)&program_file,
-                              NULL, &err);
+    unsigned char *data = _binary_hwv_bin_start;
+    size_t data_size = (size_t) _binary_hwv_bin_size;
+    // Create the program from memory
+    cl_program program = clCreateProgramWithBinary(context, 1, &device, &data_size, &data, NULL, &err);
 
     //Build / Compile the program executable
     err = clBuildProgram(program, device_count, devices, "-cl-unsafe-math-optimizations", NULL, NULL);
