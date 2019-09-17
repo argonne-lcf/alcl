@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <CL/cl.h>
 #include "./cl_utils.h"
+
 //  _
 // |_)  _  |  _  ._ ._  |  _. _|_  _
 // |_) (_) | (/_ |  |_) | (_|  |_ (/_
@@ -30,6 +31,35 @@ int read_from_binary(unsigned char **output, size_t *size, const char *name) {
   return 0;
 }
 
+char *read_from_file(const char *filename)
+{
+    long int size = 0;
+    FILE *file = fopen(filename, "r");
+
+    if(!file) {
+        fputs("File error.\n", stderr);
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    rewind(file);
+
+    char *result = (char *) malloc(size + 1);
+    result[size] = '\0';
+    if(!result) {
+        fputs("Memory error.\n", stderr);
+        return NULL;
+    }
+
+    if(fread(result, 1, size, file) != size) {
+        fputs("Read error.\n", stderr);
+        return NULL;
+    }
+
+    fclose(file);
+    return result;
+}
 /* - - - -
 OpenCL Error
 - - - - */

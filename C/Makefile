@@ -38,7 +38,7 @@ run_verbose: verbose
 	./$< 0 0 10 1
 
 
-read_cl: hwv.cl read_cl.c cl_utils.c
+read_cl: read_cl.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@
 
 run_read_cl: read_cl
