@@ -3,6 +3,7 @@
 #include <CL/cl2.hpp>
 #include <iostream>
 #include <vector>
+#include "./clerror.h"
 
 int main(int argc, char* argv[]) {
 
@@ -13,10 +14,14 @@ int main(int argc, char* argv[]) {
     // Intel may have a different OpenCL implementation for the CPU and GPU.
 
     // Discover platforms:
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
-    for (auto &plat : platforms) {
-        std::cout << "Platform: " << plat.getInfo<CL_PLATFORM_NAME>() << std::endl;
+    try {
+        std::vector<cl::Platform> platforms;
+        cl::Platform::get(&platforms);
+        for (auto &plat : platforms) {
+            std::cout << "Platform: " << plat.getInfo<CL_PLATFORM_NAME>() << std::endl;
+        }
+    } catch (cl::Error e) {
+        std::cout << e.what()<< "(" << e.err() << ": " << getErrorString(e.err()) << ")" << std::endl;
+        exit(1);
     }
-
 }
