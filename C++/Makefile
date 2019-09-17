@@ -60,7 +60,7 @@ hwv.bin.o: hwv.bin
 	objcopy --input binary --output elf64-x86-64 --binary-architecture i386 --rename-section .data=.rodata,CONTENTS,ALLOC,LOAD,READONLY,DATA hwv.{bin,bin.o}
 
 read_elfcl: read_elfcl.cpp hwv.bin.o
-	$(CXX) $@.cpp $^ $(CXXFLAGS) -o $@
+	$(CXX) $^ $(CXXFLAGS) -o $@
 
 run_read_elfcl: read_elfcl
 	./$< 0 0 10 1
