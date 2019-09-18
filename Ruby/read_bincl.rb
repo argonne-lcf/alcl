@@ -20,7 +20,7 @@ context = OpenCL.create_context([dev])
 queue = context.create_command_queue(dev)
 
 `ioc64 -cmd=build -input=hwv.cl -ir=hwv.bin -device=gpu`
-binary = File::read("hwv.cl", mode: "rb")
+binary = File::read("hwv.bin", mode: "rb")
 program, status = OpenCL.create_program_with_binary(context, [dev], [binary] )
 program.build
 
