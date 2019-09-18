@@ -166,6 +166,7 @@ int main(int argc, char* argv[]) {
     err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 0, NULL, NULL);
     check_error(err,"clEnqueueNDRangeKernel");
 
+    clEnqueueReadBuffer(queue, d_a, CL_FALSE, 0, bytes, h_a, 0, NULL, NULL );
     /* - - - 
     Sync & check
     - - - */
@@ -174,7 +175,6 @@ int main(int argc, char* argv[]) {
     clFinish(queue);
 
     // Read the results from the device
-    clEnqueueReadBuffer(queue, d_a, CL_TRUE, 0, bytes, h_a, 0, NULL, NULL );
     double sum = 0;
     for(int i=0; i<n; i++)
         sum += h_a[i];
