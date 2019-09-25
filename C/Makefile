@@ -82,6 +82,13 @@ run_event_unorder: event_unorder
 	./$< 0 0 1 1 10
 
 
+event_unorder_atomic: event_unorder_atomic.c cl_utils.c
+	    $(CC) $^ $(CFLAGS) -o $@
+
+run_event_unorder_atomic: event_unorder_atomic
+	    ./$< 0 0 1 1 10
+
+
 event_order: event_order.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@
 
