@@ -68,32 +68,16 @@ int main(int argc, char* argv[]) {
     /* - - - -
     Context
     - - - - */
-    // A context is a platform with the selected device for that platform.
+    // A context is a platform with the (or several) selected device for that platform.
     cl_context context = clCreateContext(0, 1, &device, NULL, NULL, &err);
     check_error(err,"clCreateContext");
 
-    /* - - - -
-    Command queue
-    - - - - */
-    // The OpenCL functions that are submitted to a command-queue are enqueued in the order the calls are made but can be configured to execute in-order or out-of-order.
-    cl_command_queue queue = clCreateCommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
-    check_error(err,"clCreateCommandQueue");
-
-    // |/  _  ._ ._   _  |
-    // |\ (/_ |  | | (/_ |
-    //
-    printf(">>> Kernel configuration...\n");
-
     // Readed from file
-    unsigned char* program_file; size_t program_size;
-    err = read_from_binary(&program_file, &program_size, "hwv.bin");
+    char* kernelstring = read_from_file(argv[3]);
 
-
-    // Create the program from binary
-    cl_program program = clCreateProgramWithBinary(context, 1, &device, &program_size,
-                              (const unsigned char **)&program_file,
-                              NULL, &err);
-    check_error(err,"clCreateProgramWithBinary");
+    // Create the program
+    cl_program program = clCreateProgramWithSource(context, 1, (const char **) &kernelstring, NULL, &err);
+    check_error(err,"clCreateProgramWithSource");
 
     //Build / Compile the program executable
     err = clBuildProgram(program, 1, &device, "-cl-unsafe-math-optimizations", NULL, NULL);
@@ -114,47 +98,26 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-   /* - - - -
-    Create
-    - - - - */
-    cl_kernel kernel = clCreateKernel(program, "hello_world", &err);
-    check_error(err,"clCreateKernel");
+    size_t program_size;
 
-    /* - - - -
-    ND range
-    - - - - */
-    printf(">>> NDrange configuration...\n");
+    err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &program_size, NULL);
+    check_error(err, "clGetProgramInfo(CL_PROGRAM_BINARY_SIZES)");
 
-    #define WORK_DIM 1
+    unsigned char *bin = (unsigned char*)malloc(program_size);
 
-    // Describe the number of global work-items in work_dim dimensions that will execute the kernel function
-    size_t global0 = (size_t) atoi(argv[3]);
-    const size_t global[WORK_DIM] = {  global0 };
+    err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, program_size, &bin, NULL);
+    check_error(err, "clGetProgramInfo(CL_PROGRAM_BINARIES)");
 
-    // Describe the number of work-items that make up a work-group (also referred to as the size of the work-group).
-    // local_work_size can also be a NULL value in which case the OpenCL implementation will determine how to be break the global work-items into appropriate work-group instances.
-    size_t local0 = (size_t) atoi(argv[4]);
-    const size_t local[WORK_DIM] = { local0 };
-
-    printf("Global work size: %zu \n", global[0]);
-    printf("Local work size: %zu \n", local[0]);
-
-    /* - - - -
-    Execute
-    - - - - */
-    printf(">>> Kernel Execution...\n");
-
-    err  = clEnqueueNDRangeKernel(queue, kernel, WORK_DIM, NULL, global, local, 0, NULL, NULL);
-    check_error(err,"clEnqueueNDRangeKernel");
+    write_to_binary(bin, program_size, argv[4]);
+    free(bin);
+    free(kernelstring);
 
     //  _                         
     // /  |  _   _. ._  o ._   _  
     // \_ | (/_ (_| | | | | | (_| 
     //                         _| 
-    clReleaseCommandQueue(queue);
     clReleaseContext(context);
     clReleaseProgram(program);
-    clReleaseKernel(kernel);
 
     // Exit
     return 0;
