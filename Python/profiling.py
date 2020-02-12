@@ -43,6 +43,6 @@ for i in range(num_kernel):
 cl.wait_for_events(events)
 
 start = events[0].profile.start
-end = events[-1].profile.complete
+end = events[-1].profile.end
 
 print("OpenCl Execution time is:", (end-start) * 1e-6 , "milliseconds")

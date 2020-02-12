@@ -19,7 +19,6 @@ print("  -- Device: " + dev.name)
 context = cl.Context(devices=[dev])
 queue = cl.CommandQueue(context, dev)
 
-os.system("ioc64 -cmd=build -input=hwv.cl -ir=hwv.bin -device=gpu")
 binary = open("hwv.bin", "rb").read()
 
 program = cl.Program(context, [dev], [binary])
