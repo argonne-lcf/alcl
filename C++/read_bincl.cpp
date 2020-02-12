@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
         plat.getDevices(CL_DEVICE_TYPE_ALL, &devices);
         std::cout << "  -- Device: " << devices[device_idx].getInfo<CL_DEVICE_NAME>() << std::endl;
 
-        cl::Context context(devices);
+        cl::Context context(devices[device_idx]);
 
         cl::CommandQueue queue(context, devices[device_idx]);
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
         cl::Program::Binaries bins;
         bins.push_back(buffer);
 
-        cl::Program program(context, devices, bins);
+        cl::Program program(context, {devices[device_idx]}, bins);
         program.build("-cl-unsafe-math-optimizations");
 
         cl::Kernel kernel(program, "hello_world");

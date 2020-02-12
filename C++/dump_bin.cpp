@@ -8,21 +8,16 @@
 #include <cstdlib>
 #include "./clerror.h"
 
-extern unsigned  char _binary_hwv_bin_start[];
-extern unsigned  char _binary_hwv_bin_end[];
-
 int main(int argc, char* argv[]) {
 
 
     if (argc < 5) {
-        std::cerr << argv[0] << " platform_id device_id global_size local_size" << std::endl;
+        std::cerr << argv[0] << " platform_id device_id input output" << std::endl;
         exit(1);
     }
 
     int platform_idx = atoi(argv[1]);
     int device_idx = atoi(argv[2]);
-    int global_size = atoi(argv[3]);
-    int local_size = atoi(argv[4]);
 
     try {
         std::vector<cl::Platform> platforms;
@@ -37,25 +32,17 @@ int main(int argc, char* argv[]) {
 
         cl::Context context(devices[device_idx]);
 
-        cl::CommandQueue queue(context, devices[device_idx]);
+        std::ifstream file(argv[3]);
+        std::ostringstream kernelstring;
+        kernelstring << file.rdbuf();
 
-        std::vector<unsigned char> buffer(_binary_hwv_bin_start, _binary_hwv_bin_end);
-
-        cl::Program::Binaries bins;
-        bins.push_back(buffer);
-
-        cl::Program program(context, { devices[device_idx] }, bins);
+        cl::Program program(context, kernelstring.str());
         program.build("-cl-unsafe-math-optimizations");
 
-        cl::Kernel kernel(program, "hello_world");
+        std::ofstream ofile(argv[4], std::ofstream::binary);
+        auto bin = program.getInfo<CL_PROGRAM_BINARIES>()[0];
+        ofile.write((char*)&bin[0], bin.size());
 
-        std::cout << kernel.getInfo<CL_KERNEL_FUNCTION_NAME>() << std::endl;
-
-        auto kernel_func = cl::KernelFunctor<>(kernel);
-
-        kernel_func(cl::EnqueueArgs(queue, cl::NDRange(global_size), cl::NDRange(local_size)));
-
-        queue.finish();
     } catch (cl::Error e) {
         std::cout << e.what()<< "(" << e.err() << ": " << getErrorString(e.err()) << ")" << std::endl;
         exit(1);
