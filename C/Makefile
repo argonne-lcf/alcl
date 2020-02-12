@@ -58,7 +58,7 @@ dump_bin: dump_bin.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@
 
 hwv.bin.o: hwv.bin
-	objcopy --input binary --output elf64-x86-64 --binary-architecture i386 --rename-section .data=.rodata,CONTENTS,ALLOC,LOAD,READONLY,DATA hwv.{bin,bin.o}
+	objcopy --input binary --output elf64-x86-64 --binary-architecture i386 --rename-section .data=.rodata,CONTENTS,ALLOC,LOAD,READONLY,DATA hwv.bin hwv.bin.o
 
 read_elfcl: read_elfcl.c hwv.bin.o cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@

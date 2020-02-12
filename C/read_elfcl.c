@@ -4,8 +4,8 @@
 #include <CL/cl.h>
 #include "./cl_utils.h"
 
-extern unsigned  char _binary_hwv_bin_start[];
-extern unsigned  char _binary_hwv_bin_size[];
+extern unsigned char _binary_hwv_bin_start[];
+extern unsigned char _binary_hwv_bin_end[];
 
 
 int main(int argc, char* argv[]) {
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     printf(">>> Kernel configuration...\n");
 
     unsigned char *data = _binary_hwv_bin_start;
-    size_t data_size = (size_t) _binary_hwv_bin_size;
+    size_t data_size = (size_t) (_binary_hwv_bin_end - _binary_hwv_bin_start);
     // Create the program from memory
     cl_program program = clCreateProgramWithBinary(context, 1, &device, &data_size, (const unsigned char **)&data, NULL, &err);
 
