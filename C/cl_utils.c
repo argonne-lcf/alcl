@@ -31,6 +31,16 @@ int read_from_binary(unsigned char **output, size_t *size, const char *name) {
   return 0;
 }
 
+int write_to_binary(unsigned char *input, size_t size, const char *name) {
+  FILE *fp = fopen(name, "wb");
+  if (!fp) {
+    return -1;
+  }
+  fwrite(input, 1, size, fp);
+  fclose(fp);
+  return 0;
+}
+
 char *read_from_file(const char *filename)
 {
     long int size = 0;

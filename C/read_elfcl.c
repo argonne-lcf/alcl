@@ -74,18 +74,16 @@ int main(int argc, char* argv[]) {
     /* - - - -
     Context
     - - - - */
-    // A context is a platform with a set of available devices for that platform.
-    cl_context context = clCreateContext(0, device_count, devices, NULL, NULL, &err);
+    // A context is a platform with the selected device for that platform.
+    cl_context context = clCreateContext(0, 1, &device, NULL, NULL, &err);
     check_error(err,"clCreateContext");
 
     /* - - - -
     Command queue
     - - - - */
     // The OpenCL functions that are submitted to a command-queue are enqueued in the order the calls are made but can be configured to execute in-order or out-of-order.
-    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_PROFILING_ENABLE), 0 };
-
-    cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, properties, &err);
-    check_error(err,"clCreateCommandQueueWithProperties");
+    cl_command_queue queue = clCreateCommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+    check_error(err,"clCreateCommandQueue");
 
     // |/  _  ._ ._   _  |
     // |\ (/_ |  | | (/_ |
@@ -95,10 +93,10 @@ int main(int argc, char* argv[]) {
     unsigned char *data = _binary_hwv_bin_start;
     size_t data_size = (size_t) _binary_hwv_bin_size;
     // Create the program from memory
-    cl_program program = clCreateProgramWithBinary(context, 1, &device, &data_size, &data, NULL, &err);
+    cl_program program = clCreateProgramWithBinary(context, 1, &device, &data_size, (const unsigned char **)&data, NULL, &err);
 
     //Build / Compile the program executable
-    err = clBuildProgram(program, device_count, devices, "-cl-unsafe-math-optimizations", NULL, NULL);
+    err = clBuildProgram(program, 1, &device, "-cl-unsafe-math-optimizations", NULL, NULL);
     if (err != CL_SUCCESS)
     {
         printf("Error: Failed to build program executable!\n");

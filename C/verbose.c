@@ -77,10 +77,8 @@ int main(int argc, char* argv[]) {
     Command queue
     - - - - */
     // The OpenCL functions that are submitted to a command-queue are enqueued in the order the calls are made but can be configured to execute in-order or out-of-order.
-    const cl_queue_properties properties[] =  { CL_QUEUE_PROPERTIES, (CL_QUEUE_PROFILING_ENABLE), 0 };
-
-    cl_command_queue queue = clCreateCommandQueueWithProperties(context, device, properties, &err);
-    check_error(err,"clCreateCommandQueueWithProperties");
+    cl_command_queue queue = clCreateCommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+    check_error(err,"clCreateCommandQueue");
 
     // |/  _  ._ ._   _  |
     // |\ (/_ |  | | (/_ |

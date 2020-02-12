@@ -8,7 +8,7 @@ run: $(addprefix run_, $(BINARIES))
 
 clean:
 	rm -f -- $(BINARIES)
-	rm -f -- hwv.bin *.o
+	rm -f -- hwv.bin *.o dump_bin
 	
 platform: platform.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@
@@ -45,8 +45,8 @@ run_read_cl: read_cl
 	./$< 0 0 10 1
 
 
-hwv.bin: hwv.cl
-	ioc64 -cmd=build -input=hwv.cl -ir=hwv.bin -device=gpu
+hwv.bin: hwv.cl dump_bin
+	./dump_bin 0 0 hwv.cl hwv.bin
 
 read_bincl: read_bincl.c cl_utils.c
 	$(CC) $^ $(CFLAGS) -o $@
@@ -54,7 +54,8 @@ read_bincl: read_bincl.c cl_utils.c
 run_read_bincl: read_bincl hwv.bin
 	./$< 0 0 10 1
 
-
+dump_bin: dump_bin.c cl_utils.c
+	$(CC) $^ $(CFLAGS) -o $@
 
 hwv.bin.o: hwv.bin
 	objcopy --input binary --output elf64-x86-64 --binary-architecture i386 --rename-section .data=.rodata,CONTENTS,ALLOC,LOAD,READONLY,DATA hwv.{bin,bin.o}
