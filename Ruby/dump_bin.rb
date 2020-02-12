@@ -2,7 +2,7 @@ require 'opencl_ruby_ffi'
 require 'narray_ffi'
 
 if ARGV.length < 4
-  raise "#{$0} platform_id device_id global_size local_size"
+  raise "#{$0} platform_id device_id input output"
 end
 
 platform_index   = ARGV[0].to_i
@@ -17,12 +17,12 @@ dev = plat.devices[device_index]
 puts "  -- Device: #{dev.name}"
 
 context = OpenCL.create_context([dev])
-queue = context.create_command_queue(dev)
 
-binary = File::read("hwv.bin", mode: "rb")
-program, status = OpenCL.create_program_with_binary(context, [dev], [binary] )
+source = File::read("hwv.cl")
+
+program = context.create_program_with_source(source)
 program.build
 
-kernel = program.create_kernel(:hello_world)
-queue.enqueue_ndrange_kernel(kernel, [global_work_size], local_work_size: [local_work_size])
-queue.finish
+File::open("hwv.bin", "wb") { |f|
+  f.write program.binaries[0][1]
+}
