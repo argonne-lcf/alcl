@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lOpenCL -DCL_TARGET_OPENCL_VERSION=220
+CFLAGS=-lOpenCL -DCL_TARGET_OPENCL_VERSION=220 -DCL_USE_DEPRECATED_OPENCL_1_2_APIS
 
 BINARIES=platform tiny_clinfo my_first_kernel verbose read_cl read_bincl read_elfcl buffer event_unorder event_order profiling
 all: $(BINARIES)
