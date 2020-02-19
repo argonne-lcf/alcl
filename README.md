@@ -13,7 +13,7 @@ Argonne Leadership Computing Facility OpenCL tutorial.
 
 Examples are provided in C, C++, Python and Ruby.
 
-```
+```bash
 # Create all the executable
 make
 # Run all the executable
