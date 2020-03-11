@@ -3,6 +3,35 @@
 #include "ze_api.h"
 #include "./ze_utils.h"
 
+//  _
+// |_)  _  |  _  ._ ._  |  _. _|_  _
+// |_) (_) | (/_ |  |_) | (_|  |_ (/_
+//                  |
+
+/* - - - -
+IO
+- - - - */
+int read_from_binary(unsigned char **output, size_t *size, const char *name) {
+  FILE *fp = fopen(name, "rb");
+  if (!fp) {
+    return -1;
+  }
+
+  fseek(fp, 0, SEEK_END);
+  *size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  *output = (unsigned char *)malloc(*size * sizeof(unsigned char));
+  if (!*output) {
+    fclose(fp);
+    return -1;
+  }
+
+  fread(*output, *size, 1, fp);
+  fclose(fp);
+  return 0;
+}
+
 /* - - - -
 OpenCL Error
 - - - - */
