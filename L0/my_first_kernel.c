@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
   errno = read_from_binary(&program_file, &program_size, "hwv_Gen9core.gen");
   check_error(errno, "read_from_binary");
 
-   // OpenCL C kernel has been compiled to SPIRV IL (pImageScalingIL)
+   // OpenCL C kernel has been compiled to Gen Binary
   ze_module_desc_t moduleDesc = {
     ZE_MODULE_DESC_VERSION_CURRENT,
     ZE_MODULE_FORMAT_NATIVE,
