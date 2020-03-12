@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-lze_loader -Wall
-BINARIES=tiny_zeinfo my_first_kernel
+BINARIES=tiny_zeinfo my_first_kernel profiling
 all: $(BINARIES)
 
 run: $(addprefix run_, $(BINARIES))
@@ -23,3 +23,9 @@ my_first_kernel: my_first_kernel.c ze_utils.c | hwv_Gen9core.gen
 
 run_my_first_kernel: my_first_kernel
 		./$< 10 1
+
+profiling: profiling.c ze_utils.c | hwv_Gen9core.gen
+	            $(CC) $^ $(CFLAGS) -o $@
+
+run_profiling: profiling
+	        ./$< 10 1
