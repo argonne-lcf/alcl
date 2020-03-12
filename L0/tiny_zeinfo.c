@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "ze_api.h"
+#include "zet_api.h"
 
 #include "./ze_utils.h"
 int main()
@@ -55,6 +56,35 @@ int main()
         errno = zeDeviceGetProperties(phDevices[device_idx], &device_properties);
         check_error(errno, "zeDeviceGetProperties");
         printf("Device #%d %s\n ", device_idx, device_properties.name);
+        printf("  numSlices %u\n ", device_properties.numSlices);
+        printf("  numSubslicesPerSlice %u\n ", device_properties.numSubslicesPerSlice);
+        printf("  numEUsPerSubslice %u\n ", device_properties.numEUsPerSubslice);
+        printf("  physicalEUSimdWidth %u\n ", device_properties.physicalEUSimdWidth);
+        printf("  numThreadsPerEU %u\n ", device_properties.numThreadsPerEU);
+
+        // |\/|  _ _|_ ._ o  _
+        // |  | (/_ |_ |  | (_
+        //
+        
+        /* Not yet working
+        // Obtain available metric groups for the specific device
+        uint32_t metricGroupCount = 0;
+        errno = zetMetricGroupGet( phDevices[device_idx], &metricGroupCount, NULL);
+        check_error(errno, "zetMetricGroupGet");
+
+        zet_metric_group_handle_t* phMetricGroups = malloc(metricGroupCount * sizeof(zet_metric_group_handle_t));
+        errno = zetMetricGroupGet( phDevices[device_idx], &metricGroupCount, phMetricGroups );
+        check_error(errno, "zetMetricGroupGet");
+
+        // Iterate over all metric groups available
+        for(int i = 0; i < metricGroupCount; i++ ) {
+          // Get metric group under index 'i' and its properties
+          zet_metric_group_properties_t metricGroupProperties;
+          zetMetricGroupGetProperties( phMetricGroups[i], &metricGroupProperties );
+          printf("Metric Group: %s\n", metricGroupProperties.name);
+        } 
+        free(phMetricGroups);
+        */
     }
 
     free(phDevices);

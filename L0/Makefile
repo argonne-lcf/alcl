@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-lze_loader -Wall
-BINARIES=tiny_zeinfo my_first_kernel profiling
+BINARIES=tiny_zeinfo my_first_kernel profiling metric
 all: $(BINARIES)
 
 run: $(addprefix run_, $(BINARIES))
@@ -25,7 +25,13 @@ run_my_first_kernel: my_first_kernel
 		./$< 10 1
 
 profiling: profiling.c ze_utils.c | hwv_Gen9core.gen
-	            $(CC) $^ $(CFLAGS) -o $@
+	$(CC) $^ $(CFLAGS) -o $@
 
 run_profiling: profiling
-	        ./$< 10 1
+	./$< 10 1
+
+metric: metric.c ze_utils.c | hwv_Gen9core.gen
+	$(CC) $^ $(CFLAGS) -o $@
+
+run_metric: profiling
+	./$< 10 1
