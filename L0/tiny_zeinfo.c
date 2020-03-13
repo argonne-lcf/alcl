@@ -55,7 +55,7 @@ int main()
         ze_device_properties_t device_properties;
         errno = zeDeviceGetProperties(phDevices[device_idx], &device_properties);
         check_error(errno, "zeDeviceGetProperties");
-        printf("Device #%d %s\n ", device_idx, device_properties.name);
+        printf("Device #%d %s (%#x)\n ", device_idx, device_properties.name, device_properties.deviceId);
         printf("  numSlices %u\n ", device_properties.numSlices);
         printf("  numSubslicesPerSlice %u\n ", device_properties.numSubslicesPerSlice);
         printf("  numEUsPerSubslice %u\n ", device_properties.numEUsPerSubslice);
