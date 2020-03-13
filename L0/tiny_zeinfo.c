@@ -12,7 +12,7 @@ int main()
   // |_) |  _. _|_ _|_ _  ._ ._ _    ()    | \  _     o  _  _
   // |   | (_|  |_  | (_) |  | | |   (_X   |_/ (/_ \/ | (_ (/_
   //
-  printf(">>> Initializing OpenCL Platform and Device...\n");
+  printf(">>> Initializing L0  Platform and Device...\n");
 
   // Initialize the driver
   errno  = zeInit(ZE_INIT_FLAG_NONE);
