@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "stdio.h"
 #include "ze_api.h"
@@ -8,8 +9,8 @@
 int main(int argc, char* argv[]) {
   ze_result_t errno;
 
-  //if (argc < 3)
-  //     exit_msg(strcat(argv[0], " groupSize numGroup" ));
+  if (argc < 3)
+       exit_msg(strcat(argv[0], " groupSize numGroup" ));
 
   //  _              _                      _
   // |_) |  _. _|_ _|_ _  ._ ._ _    ()    | \  _     o  _  _
