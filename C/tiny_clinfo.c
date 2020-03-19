@@ -3,6 +3,9 @@
 #include <CL/cl.h>
 #include "./cl_utils.h"
 
+#define CL_DEVICE_SLICE_COUNT_INTEL 0x10020
+#define CL_QUEUE_SLICE_COUNT_INTEL 0x10021
+
 int main(int argc, char* argv[]) {
 
    cl_int err;
@@ -52,9 +55,10 @@ int main(int argc, char* argv[]) {
         // Device print
         for (cl_uint device_idx=0; device_idx < device_count ; device_idx++) {
             cl_device_id device = devices[device_idx];
-            err = clGetDeviceInfo(device, CL_DEVICE_NAME, 128, name, NULL);
+            size_t  numSlices  = 0;
+            err = clGetDeviceInfo(device, CL_DEVICE_SLICE_COUNT_INTEL, sizeof(numSlices), &numSlices, NULL);
             check_error(err, "clGetPlatformInfo");
-            printf("-- Device #%d: %s\n", device_idx, name);
+            printf("-- Device Number of slice #%d: %u\n", device_idx, numSlices);
          }
     }
 }
