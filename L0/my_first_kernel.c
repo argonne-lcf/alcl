@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
   //                        
 
   unsigned char* program_file; size_t program_size;
-  errno = read_from_binary(&program_file, &program_size, "hwv_Gen9core.gen");
+  errno = read_from_binary(&program_file, &program_size, "hwv.ar");
   check_error(errno, "read_from_binary");
 
    // OpenCL C kernel has been compiled to Gen Binary

@@ -7,7 +7,7 @@ run: $(addprefix run_, $(BINARIES))
 
 clean:
 	rm -f -- $(BINARIES)
-	rm -f -- hwv_Gen9core.*
+	rm -f -- hwv.ar
 	
 tiny_zeinfo: tiny_zeinfo.c ze_utils.c
 	    $(CC) $^ $(CFLAGS) -o $@
@@ -15,28 +15,28 @@ tiny_zeinfo: tiny_zeinfo.c ze_utils.c
 run_tiny_zeinfo: tiny_zeinfo
 	    ./$<
 
-hwv_Gen9core.gen: hwv.cl
-	ocloc compile -file $^ -device skl
+hwv.ar: hwv.cl
+	ocloc compile -file $^ -device \*
 
-my_first_kernel: my_first_kernel.c ze_utils.c | hwv_Gen9core.gen
+my_first_kernel: my_first_kernel.c ze_utils.c | hwv.ar
 	        $(CC) $^ $(CFLAGS) -o $@
 
 run_my_first_kernel: my_first_kernel
 		./$< 10 1
 
-profiling: profiling.c ze_utils.c | hwv_Gen9core.gen
+profiling: profiling.c ze_utils.c | hwv.ar
 	$(CC) $^ $(CFLAGS) -o $@
 
 run_profiling: profiling
 	./$< 10 1
 
-metric: metric.c ze_utils.c | hwv_Gen9core.gen
+metric: metric.c ze_utils.c | hwv.ar
 	$(CC) $^ $(CFLAGS) -o $@
 
 run_metric: profiling
 	./$< 10 1
 
-kernel_multithreaded: kernel_multithreaded.c ze_utils.c | hwv_Gen9core.gen
+kernel_multithreaded: kernel_multithreaded.c ze_utils.c | hwv.ar
 	$(CC) $^ $(CFLAGS) -lpthread -o $@
 
 run_kernel_multithreaded: kernel_multithreaded
