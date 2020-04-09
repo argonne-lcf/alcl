@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
             size_t  numSlices  = 0;
             err = clGetDeviceInfo(device, CL_DEVICE_SLICE_COUNT_INTEL, sizeof(numSlices), &numSlices, NULL);
             check_error(err, "clGetPlatformInfo");
-            printf("-- Device Number of slice #%d: %u\n", device_idx, numSlices);
+            printf("-- Device Number of slice #%d: %lu\n", device_idx, numSlices);
          }
     }
 }
