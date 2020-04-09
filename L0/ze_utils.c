@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "ze_api.h"
+#include <level_zero/ze_api.h>
 #include "./ze_utils.h"
 
 //  _

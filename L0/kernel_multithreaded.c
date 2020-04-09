@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-
-#include "stdio.h"
-#include "ze_api.h"
+#include <stdio.h>
+#include <level_zero/ze_api.h>
 
 #include "./ze_utils.h"
 
