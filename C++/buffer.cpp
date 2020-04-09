@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         cl::CommandQueue queue(context, devices[device_idx]);
 
         std::string kernelstring{R"CLC(
-        __kernel void hello_world(__global double *a, const unsigned int n) {
+        __kernel void hello_world(__global float *a, const unsigned int n) {
             const int world_rank = get_global_id(0);
             if (world_rank < n)
             a[world_rank] =  world_rank;
@@ -50,14 +50,14 @@ int main(int argc, char* argv[]) {
 
         auto kernel_func = cl::KernelFunctor<cl::Buffer, int>(kernel);
 
-        std::vector<double> h_a(global_size);
-        cl::Buffer d_a(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, global_size*sizeof(double));
+        std::vector<float> h_a(global_size);
+        cl::Buffer d_a(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, global_size*sizeof(float));
 
         kernel_func(cl::EnqueueArgs(queue, cl::NDRange(global_size), cl::NDRange(local_size)), d_a, global_size);
-        queue.enqueueReadBuffer(d_a, false, 0, global_size*sizeof(double), h_a.data());
+        queue.enqueueReadBuffer(d_a, false, 0, global_size*sizeof(float), h_a.data());
         queue.finish();
 
-        double sum = std::accumulate(h_a.begin(), h_a.end(), 0.0);
+        float sum = std::accumulate(h_a.begin(), h_a.end(), 0.0);
         std::cout << "Final result: " << sum << ", should have been " << global_size*(global_size-1)/2 << std::endl;
 
     } catch (cl::Error e) {

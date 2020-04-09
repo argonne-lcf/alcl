@@ -19,7 +19,7 @@ context = cl.Context(devices=[dev])
 queue = cl.CommandQueue(context, dev)
 
 source = '''
-__kernel void hello_world(__global double *a, const unsigned int n) {
+__kernel void hello_world(__global float *a, const unsigned int n) {
   const int world_rank = get_global_id(0);
   if (world_rank < n)
     a[world_rank] =  world_rank;
@@ -31,7 +31,7 @@ program.build()
 kernel = cl.Kernel(program, "hello_world");
 
 #host memory
-h_a = np.empty(global_work_size)
+h_a = np.empty(global_work_size, dtype=np.float32)
 #device buffer
 d_a = cl.Buffer(context, cl.mem_flags.WRITE_ONLY | cl.mem_flags.HOST_READ_ONLY, size=h_a.nbytes)
 

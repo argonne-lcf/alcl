@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
 
     // Length of vectors
     size_t n =  {   (size_t) atoi(argv[3]) };
-    size_t bytes = n*sizeof(double);
-    double *h_a = (double*)malloc(bytes);
+    size_t bytes = n*sizeof(float);
+    float *h_a = (float*)malloc(bytes);
     cl_mem d_a = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, bytes, NULL, &err);
     check_error(err,"cclCreateBuffer");
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     // String kernel.
     // Use MPI terminology (we are HPC!)
     const char *kernelstring =
-        "__kernel void hello_world(__global double *a, const unsigned int n) {"
+        "__kernel void hello_world(__global float *a, const unsigned int n) {"
         "   const int world_rank = get_global_id(0);"
         "    if (world_rank < n)"
         "    a[world_rank] =  world_rank;"

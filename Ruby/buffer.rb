@@ -20,7 +20,7 @@ context = OpenCL.create_context([dev])
 queue = context.create_command_queue(dev)
 
 source = <<EOF
-__kernel void hello_world(__global double *a, const unsigned int n) {
+__kernel void hello_world(__global float *a, const unsigned int n) {
   const int world_rank = get_global_id(0);
   if (world_rank < n)
     a[world_rank] =  world_rank;
@@ -28,12 +28,17 @@ __kernel void hello_world(__global double *a, const unsigned int n) {
 EOF
 
 #host memory
-h_a = NArray.float(global_work_size)
+h_a = NArray.sfloat(global_work_size)
 #device buffer
 d_a = context.create_buffer(global_work_size*h_a.element_size, flags: [OpenCL::Mem::WRITE_ONLY, OpenCL::Mem::HOST_READ_ONLY])
 
 program = context.create_program_with_source(source)
-program.build
+begin
+  program.build
+rescue
+  puts program.build_log
+  exit
+end
 kernel = program.create_kernel(:hello_world)
 kernel.set_args(d_a, OpenCL::Int1::new(global_work_size))
 queue.enqueue_ndrange_kernel(kernel, [global_work_size], local_work_size: [local_work_size])
