@@ -39,3 +39,5 @@ run_metric: profiling
 kernel_multithreaded: kernel_multithreaded.c ze_utils.c | hwv_Gen9core.gen
 	$(CC) $^ $(CFLAGS) -lpthread -o $@
 
+run_kernel_multithreaded: kernel_multithreaded
+	./$< 10 1
