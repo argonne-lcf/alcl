@@ -21,6 +21,8 @@ int main(int argc, char* argv[]) {
   // Initialize the driver
   errno  = zeInit(ZE_INIT_FLAG_NONE);
   check_error(errno, "zeInit");
+  errno  = zetInit(ZE_INIT_FLAG_NONE);
+  check_error(errno, "zetInit");
 
   // Discover all the driver instances
   uint32_t driverCount = 0;
@@ -87,7 +89,8 @@ int main(int argc, char* argv[]) {
  for(int i = 0; i < metricGroupCount; i++ ) {
      // Get metric group under index 'i' and its properties
      zet_metric_group_properties_t metricGroupProperties;
-     zetMetricGroupGetProperties( phMetricGroups[i], &metricGroupProperties );
+     metricGroupProperties.version = ZET_METRIC_GROUP_PROPERTIES_VERSION_CURRENT;
+		 zetMetricGroupGetProperties( phMetricGroups[i], &metricGroupProperties );
 
      printf("Metric Group: %s\n", metricGroupProperties.name);
  }
@@ -157,8 +160,13 @@ int main(int argc, char* argv[]) {
   errno = zeKernelCreate(hModule, &kernelDesc, &hKernel);
   check_error(errno, "zeKernelCreate");
  
-  uint32_t groupSizeX =  (uint32_t) atoi(argv[1]);
-  uint32_t numGroupsX =  (uint32_t) atoi(argv[2]);
+  uint32_t groupSizeX =  1;
+  uint32_t numGroupsX =  1;
+	if( argc >= 2 )
+	{
+		groupSizeX =  (uint32_t) atoi(argv[1]);
+		numGroupsX =  (uint32_t) atoi(argv[2]);
+	}
 
   zeKernelSetGroupSize(hKernel, groupSizeX, 1, 1);
 
