@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lze_loader -Wall
+CFLAGS=-g -O2 -lze_loader -Wall
 BINARIES=tiny_zeinfo my_first_kernel profiling metric kernel_multithreaded
 all: $(BINARIES)
 
