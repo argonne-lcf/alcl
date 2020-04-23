@@ -9,7 +9,7 @@
                                                                
 ```
 
-Argonne Leadership Computing Facility OpenCL tutorial.
+Argonne Leadership Computing Facility OpenCL / L0 tutorial.
 
 Examples are provided in C, C++, Python and Ruby.
 
