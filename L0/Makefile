@@ -1,12 +1,12 @@
 CC=gcc
 CFLAGS=-g -O2 -lze_loader -Wall
-BINARIES=tiny_zeinfo my_first_kernel profiling metric kernel_multithreaded
+BINARIES=tiny_zeinfo my_first_kernel profiling kernel_multithreaded
 all: $(BINARIES)
 
 run: $(addprefix run_, $(BINARIES))
 
 clean:
-	rm -f -- $(BINARIES)
+	rm -f -- $(BINARIES) metric
 	rm -f -- hwv.ar
 	
 tiny_zeinfo: tiny_zeinfo.c ze_utils.c
@@ -33,7 +33,7 @@ run_profiling: profiling
 metric: metric.c ze_utils.c | hwv.ar
 	$(CC) $^ $(CFLAGS) -o $@
 
-run_metric: profiling
+run_metric: metric
 	./$< 10 1
 
 kernel_multithreaded: kernel_multithreaded.c ze_utils.c | hwv.ar
