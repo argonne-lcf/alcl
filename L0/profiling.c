@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   // |_) |  _. _|_ _|_ _  ._ ._ _    ()    | \  _     o  _  _
   // |   | (_|  |_  | (_) |  | | |   (_X   |_/ (/_ \/ | (_ (/_
   //
-  printf(">>> Initializing OpenCL Platform and Device...\n");
+  printf(">>> Initializing Level Zero Platform and Device...\n");
   // Select the first GPU avalaible
 
   // Initialize the driver
