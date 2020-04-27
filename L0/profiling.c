@@ -147,9 +147,7 @@ int main(int argc, char* argv[]) {
   // Create event pool
   ze_event_pool_desc_t eventPoolDesc = {
     ZE_EVENT_POOL_DESC_VERSION_CURRENT,
-    //Bug "Non-successful return code 2013265924 (ZE_RESULT_ERROR_INVALID_ARGUMENT) for zeEventGetTimestamp.  Exiting."
-    //ZE_EVENT_POOL_FLAG_HOST_VISIBLE | ZE_EVENT_POOL_FLAG_TIMESTAMP, // all events in pool are visible to Host
-    ZE_EVENT_POOL_FLAG_TIMESTAMP,
+    ZE_EVENT_POOL_FLAG_HOST_VISIBLE | ZE_EVENT_POOL_FLAG_TIMESTAMP,
     1 // One event on the pool
   };
 
