@@ -20,7 +20,7 @@ context = OpenCL.create_context([dev])
 queue = context.create_command_queue(dev)
 
 binary = File::read("hwv.bin", mode: "rb")
-program, status = OpenCL.create_program_with_binary(context, [dev], [binary] )
+program, status = context.create_program_with_binary([dev], binary )
 program.build
 
 kernel = program.create_kernel(:hello_world)
