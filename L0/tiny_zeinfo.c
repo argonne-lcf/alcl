@@ -14,7 +14,7 @@ int main()
   printf(">>> Initializing L0  Platform and Device...\n");
 
   // Initialize the driver
-  errno  = zeInit(ZE_INIT_FLAG_NONE);
+  errno  = zeInit(ZE_INIT_FLAG_GPU_ONLY);
   check_error(errno, "zeInit");
 
   // Discover all the driver instances
