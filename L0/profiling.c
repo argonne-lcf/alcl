@@ -229,7 +229,8 @@ int main(int argc, char* argv[]) {
 
   // Append a query of a timestamp event into the command list
   errno = zeCommandListAppendQueryKernelTimestamps(hCommandList, 1, &hEvent, tsResult, NULL, NULL, 1, &hEvent);
-
+  check_error(errno, "zeCommandListAppendQueryKernelTimestamps");
+  
   // finished appending commands (typically done on another thread)
   errno = zeCommandListClose(hCommandList);
   check_error(errno, "zeCommandListClose");
