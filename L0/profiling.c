@@ -213,8 +213,16 @@ int main(int argc, char* argv[]) {
     0  // ordinal
   };
 
+  // allocate memory for results
+  ze_host_mem_alloc_desc_t tsResultDesc2 = {
+    ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC,
+    NULL,
+    0, // flags
+  };
+
   ze_kernel_timestamp_result_t* tsResult = NULL;
-  errno = zeMemAllocDevice(hContext, &tsResultDesc, sizeof(ze_kernel_timestamp_result_t), sizeof(uint32_t), hDevice, (void**) &tsResult);
+  //errno = zeMemAllocDevice(hContext, &tsResultDesc, sizeof(ze_kernel_timestamp_result_t), sizeof(uint32_t), hDevice, (void**) &tsResult);
+  errno = zeMemAllocShared(hContext, &tsResultDesc, &tsResultDesc2, sizeof(ze_kernel_timestamp_result_t), sizeof(uint32_t), hDevice, (void**) &tsResult);
   check_error(errno, "zeMemAllocDevice");
 
   //  __                                 
