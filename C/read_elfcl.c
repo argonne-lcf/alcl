@@ -1,7 +1,7 @@
 // Includes
 #include <stdio.h>
 #include <string.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
 extern unsigned char _binary_hwv_bin_start[];

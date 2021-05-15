@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
 //  _
@@ -43,7 +43,7 @@ int write_to_binary(unsigned char *input, size_t size, const char *name) {
 
 char *read_from_file(const char *filename)
 {
-    long int size = 0;
+    size_t size = 0;
     FILE *file = fopen(filename, "r");
 
     if(!file) {

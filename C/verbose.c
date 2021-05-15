@@ -1,7 +1,7 @@
 // Includes
 #include <stdio.h>
 #include <string.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
 int main(int argc, char* argv[]) {

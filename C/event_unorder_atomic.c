@@ -1,6 +1,6 @@
 // Includes
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include <unistd.h>
 #include "./cl_utils.h"
 

@@ -1,12 +1,12 @@
 // Includes
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
 #define CL_DEVICE_SLICE_COUNT_INTEL 0x10020
 #define CL_QUEUE_SLICE_COUNT_INTEL 0x10021
 
-int main(int argc, char* argv[]) {
+int main() {
 
    cl_int err;
 

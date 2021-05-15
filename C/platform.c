@@ -1,9 +1,9 @@
 // Includes
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
-int main(int argc, char* argv[]) {
+int main() {
 
    cl_int err;
 

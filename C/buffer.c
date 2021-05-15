@@ -1,6 +1,6 @@
 // Includes
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include "./cl_utils.h"
 
 int main(int argc, char* argv[]) {
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
 
     // Read the results from the device
     double sum = 0;
-    for(int i=0; i<n; i++)
+    for(size_t i=0; i<n; i++)
         sum += h_a[i];
      printf("final result: %f, should have been %lu\n", sum, n*(n-1)/2);
 

@@ -1,6 +1,6 @@
 // Includes
 #include <stdio.h>
-#include <CL/cl.h>
+#include <CL/opencl.h>
 #include <unistd.h>
 #include "./cl_utils.h"
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
     const size_t num_kernel = (size_t) atoi(argv[5]) ;
     cl_event ev;
     ev = clCreateUserEvent(context, NULL);
-    for (int id = 0 ; id < num_kernel; id++){
+    for (size_t id = 0 ; id < num_kernel; id++){
          err = clSetKernelArg(kernel, 0, sizeof(id), &id);
          check_error(err,"clSetKernelArg");
 
