@@ -26,8 +26,11 @@ int read_from_binary(unsigned char **output, size_t *size, const char *name) {
     return -1;
   }
 
-  fread(*output, *size, 1, fp);
+  size_t ret = fread(*output, *size, 1, fp);
   fclose(fp);
+  if (ret != *size)
+    return -1;
+
   return 0;
 }
 
