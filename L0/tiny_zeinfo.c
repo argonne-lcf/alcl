@@ -13,20 +13,18 @@ int main()
   //
   printf(">>> Initializing L0  Platform and Device...\n");
 
-  // Initialize the driver
-  errno  = zeInit(ZE_INIT_FLAG_GPU_ONLY);
-  check_error(errno, "zeInit");
-
-  // Discover all the driver instances
+  // Initialize the driver and discover all the driver instances
+  ze_init_driver_type_desc_t driverTypeDesc = { .stype = ZE_STRUCTURE_TYPE_INIT_DRIVER_TYPE_DESC,
+    .flags = ZE_INIT_DRIVER_TYPE_FLAG_GPU };
   uint32_t driverCount = 0;
-  errno = zeDriverGet(&driverCount, NULL);
-  check_error(errno, "zeDriverGet");
-  
+  errno = zeInitDrivers(&driverCount, NULL, &driverTypeDesc);
+  check_error(errno, "zeInitDrivers");
+
   //Now where the phDrivers
   ze_driver_handle_t* phDrivers = (ze_driver_handle_t*) malloc(driverCount * sizeof(ze_driver_handle_t));
-  errno = zeDriverGet(&driverCount, phDrivers);
-  check_error(errno, "zeDriverGet");
-
+  errno = zeInitDrivers( &driverCount, phDrivers, &driverTypeDesc);
+  check_error(errno, "zeInitDrivers");
+  
   for(uint32_t driver_idx = 0; driver_idx < driverCount; driver_idx++) {
 
     ze_driver_handle_t driver = phDrivers[driver_idx];

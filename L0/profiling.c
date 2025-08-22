@@ -15,22 +15,20 @@ int main(int argc, char* argv[]) {
   // |_) |  _. _|_ _|_ _  ._ ._ _    ()    | \  _     o  _  _
   // |   | (_|  |_  | (_) |  | | |   (_X   |_/ (/_ \/ | (_ (/_
   //
-  printf(">>> Initializing OpenCL Platform and Device...\n");
+  printf(">>> Initializing L0 Platform and Device...\n");
   // Select the first GPU avalaible
 
-  // Initialize the driver
-  errno  = zeInit(ZE_INIT_FLAG_GPU_ONLY);
-  check_error(errno, "zeInit");
-
-  // Discover all the driver instances
+  // Initialize the driver and discover all the driver instances
+  ze_init_driver_type_desc_t driverTypeDesc = { .stype = ZE_STRUCTURE_TYPE_INIT_DRIVER_TYPE_DESC,
+    .flags = ZE_INIT_DRIVER_TYPE_FLAG_GPU };
   uint32_t driverCount = 0;
-  errno = zeDriverGet(&driverCount, NULL);
-  check_error(errno, "zeDriverGet");
+  errno = zeInitDrivers(&driverCount, NULL, &driverTypeDesc);
+  check_error(errno, "zeInitDrivers");
 
   //Now where the phDrivers
   ze_driver_handle_t* phDrivers = (ze_driver_handle_t*) malloc(driverCount * sizeof(ze_driver_handle_t));
-  errno = zeDriverGet(&driverCount, phDrivers);
-  check_error(errno, "zeDriverGet");
+  errno = zeInitDrivers( &driverCount, phDrivers, &driverTypeDesc);
+  check_error(errno, "zeInitDrivers");
 
   // Device who will be selected
   ze_device_handle_t hDevice = NULL;
@@ -76,10 +74,7 @@ int main(int argc, char* argv[]) {
   //
   ze_context_handle_t hContext = NULL;
   // Create context
-  ze_context_desc_t context_desc = {
-     ZE_STRUCTURE_TYPE_CONTEXT_DESC,
-     NULL,
-     0};
+  ze_context_desc_t context_desc = { .stype = ZE_STRUCTURE_TYPE_CONTEXT_DESC };
   errno = zeContextCreate(hDriver, &context_desc, &hContext);
   check_error(errno, "zeContextCreate");
 
@@ -107,14 +102,11 @@ int main(int argc, char* argv[]) {
 
   // Command queue
   ze_command_queue_desc_t commandQueueDesc = {
-    ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
-    NULL,
-    computeQueueGroupOrdinal,
-    0, // index
-    0, // flags
-    ZE_COMMAND_QUEUE_MODE_DEFAULT,
-    ZE_COMMAND_QUEUE_PRIORITY_NORMAL
-  };
+    .stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,
+    .ordinal = computeQueueGroupOrdinal,
+    .mode = ZE_COMMAND_QUEUE_MODE_DEFAULT,
+    .priority = ZE_COMMAND_QUEUE_PRIORITY_NORMAL
+  }; 
 
   ze_command_queue_handle_t hCommandQueue;
   errno = zeCommandQueueCreate(hContext, hDevice, &commandQueueDesc, &hCommandQueue);
@@ -124,11 +116,10 @@ int main(int argc, char* argv[]) {
   //  \_ (_) | | | | | | (_| | | (_|   |_ | _>  |_
   //
   ze_command_list_desc_t commandListDesc = {
-    ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
-    NULL,
-    computeQueueGroupOrdinal,
-    0 // flags
+    .stype = ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,
+    .commandQueueGroupOrdinal = computeQueueGroupOrdinal
   };
+
   ze_command_list_handle_t hCommandList;
   errno =  zeCommandListCreate(hContext, hDevice, &commandListDesc, &hCommandList);
   check_error(errno, "zeCommandListCreate");
@@ -143,14 +134,12 @@ int main(int argc, char* argv[]) {
 
    // OpenCL C kernel has been compiled to Gen Binary
   ze_module_desc_t moduleDesc = {
-    ZE_STRUCTURE_TYPE_MODULE_DESC,
-    NULL,
-    ZE_MODULE_FORMAT_NATIVE,
-    program_size,
-    program_file,
-    NULL,
-    NULL
+    .stype = ZE_STRUCTURE_TYPE_MODULE_DESC,
+    .format = ZE_MODULE_FORMAT_NATIVE,
+    .inputSize = program_size,
+    .pInputModule = program_file
   };
+
   ze_module_handle_t hModule;
   errno = zeModuleCreate(hContext, hDevice, &moduleDesc, &hModule, NULL);
   check_error(errno, "zeModuleCreate");
@@ -160,11 +149,10 @@ int main(int argc, char* argv[]) {
   //
 
   ze_kernel_desc_t kernelDesc = {
-    ZE_STRUCTURE_TYPE_KERNEL_DESC,
-    NULL,
-    0, // flags
-    "hello_world"
+    .stype = ZE_STRUCTURE_TYPE_KERNEL_DESC,
+    .pKernelName = "hello_world"
   };
+
   ze_kernel_handle_t hKernel;
   errno = zeKernelCreate(hModule, &kernelDesc, &hKernel);
   check_error(errno, "zeKernelCreate");
@@ -181,25 +169,21 @@ int main(int argc, char* argv[]) {
 
   // Create event pool
   ze_event_pool_desc_t eventPoolDesc = {
-    ZE_STRUCTURE_TYPE_EVENT_POOL_DESC,
-    NULL,
-    //ZE_EVENT_POOL_FLAG_HOST_VISIBLE | ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP,
-    ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP,
-    1 // One event on the pool
+    .stype = ZE_STRUCTURE_TYPE_EVENT_POOL_DESC,
+    .flags = ZE_EVENT_POOL_FLAG_KERNEL_TIMESTAMP,
+    .count = 1 // One event on the pool
   };
 
   ze_event_pool_handle_t hEventPool;
   errno = zeEventPoolCreate(hContext, &eventPoolDesc, 0, NULL, &hEventPool);
-  //errno = zeEventPoolCreate(hDriver, &eventPoolDesc, 1, &hDevice, &hEventPool);
   check_error(errno, "zeEventPoolCreate");
 
   ze_event_desc_t eventDesc = {
-    ZE_STRUCTURE_TYPE_EVENT_DESC,
-    NULL,
-    0, // index
-    0, // no memory/cache coherency required on signal
+    .stype = ZE_STRUCTURE_TYPE_EVENT_DESC,
+    .index = 0, // index
+    .signal = 0, // no memory/cache coherency required on signal
     //ZE_EVENT_SCOPE_FLAG_HOST  // ensure memory coherency across device and Host after event completes
-    0 // No need for memory/cache coherency on wait
+    .wait = 0 // No need for memory/cache coherency on wait
   };
   ze_event_handle_t hEvent;
   errno = zeEventCreate(hEventPool, &eventDesc, &hEvent);
@@ -207,17 +191,15 @@ int main(int argc, char* argv[]) {
 
   // allocate memory for results
   ze_device_mem_alloc_desc_t tsResultDesc = {
-    ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC,
-    NULL,
-    0, // flags
-    0  // ordinal
+    .stype = ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC,
+    .flags = 0, // flags
+    .ordinal = 0  // ordinal
   };
 
   // allocate memory for results
   ze_host_mem_alloc_desc_t tsResultDesc2 = {
-    ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC,
-    NULL,
-    0, // flags
+    .stype = ZE_STRUCTURE_TYPE_HOST_MEM_ALLOC_DESC,
+    .flags = 0, // flags
   };
 
   ze_kernel_timestamp_result_t* tsResult = NULL;
@@ -230,7 +212,9 @@ int main(int argc, char* argv[]) {
   // __) |_| |_) | | | | _> _> | (_) | | 
   //                                     
   
-  ze_group_count_t launchArgs = { numGroupsX, 1, 1 };
+  ze_group_count_t launchArgs = { .groupCountX = numGroupsX,
+    .groupCountY = 1,
+    .groupCountZ = 1 };
   // Append launch kernel
   errno = zeCommandListAppendLaunchKernel(hCommandList, hKernel, &launchArgs, hEvent, 0, NULL);
   check_error(errno, "zeCommandListAppendLaunchKernel");
