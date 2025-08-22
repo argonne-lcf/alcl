@@ -14,10 +14,8 @@ int main()
   printf(">>> Initializing L0  Platform and Device...\n");
 
   // Initialize the driver and discover all the driver instances
-  ze_init_driver_type_desc_t driverTypeDesc = {};
-  driverTypeDesc.stype = ZE_STRUCTURE_TYPE_INIT_DRIVER_TYPE_DESC;
-  driverTypeDesc.flags = ZE_INIT_DRIVER_TYPE_FLAG_GPU;
-  driverTypeDesc.pNext = NULL;
+  ze_init_driver_type_desc_t driverTypeDesc = { .stype = ZE_STRUCTURE_TYPE_INIT_DRIVER_TYPE_DESC,
+    .flags = ZE_INIT_DRIVER_TYPE_FLAG_GPU };
   uint32_t driverCount = 0;
   errno = zeInitDrivers(&driverCount, NULL, &driverTypeDesc);
   check_error(errno, "zeInitDrivers");
